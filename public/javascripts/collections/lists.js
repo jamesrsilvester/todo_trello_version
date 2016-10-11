@@ -16,7 +16,7 @@ var Lists = Backbone.Collection.extend({
     this.removeCard(card);
     card.list_id = list.id;
     card.list_title = list.title;
-    list.toJSON().cards.splice(card_idx, 0 , card);
+    list.cards.splice(card_idx, 0 , card);
     this.save();
   },
   removeCard: function(card) {

@@ -21,7 +21,7 @@
     "grunt-bower-concat": "^1.0.0",
     "grunt-contrib-handlebars": "^1.0.0",
     "grunt-contrib-uglify": "^2.0.0",
-    "nodemon": "^1.10.2",
+    "nodemon": "^1.11.0",
     "underscore": "^1.8.3"
   }
 }

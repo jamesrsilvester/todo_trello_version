@@ -52,11 +52,11 @@ var App = {
   dragCard: function() {
     var list_id = +$(this).closest(".list").attr("id").replace("list_", ""),
         card_id = +$(this).attr("id").replace("card_", ""),
-        list = App.lists.get(list_id),
+        list = App.lists.get(list_id).toJSON(),
         card = App.lists.getCard(card_id),
         card_idx = App.findCardIdx(card);
 
-    if (list_id === card.list_id && list.toJSON().cards.indexOf(card) === card_idx) { return; }
+    if (list_id === card.list_id && list.cards.indexOf(card) === card_idx) { return; }
     App.lists.dragCard(list, card, card_idx);
   },
   findCardIdx: function(input_card) {
