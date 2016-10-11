@@ -1,0 +1,23 @@
+<div class="list-header">
+  <textarea>{{title}}</textarea>
+</div>
+<div class="list-cards">
+  <div class="list-card" dragable="false"></div>
+  {{#each cards}}
+  <div class="list-card" id="card_{{id}}" dragable="true">
+    <div class="list-card-detail">
+      <a class="list-card-title" href="/card/edit/{{id}}">{{title}}</a>
+    </div>
+  </div>
+  {{/each}}
+  <div class="card-new">
+    <div class="card-new-title">
+      <textarea></textarea>
+    </div>
+    <div class="control">
+      <input type="submit" value="Add">
+      <a class="icon_close"></a>
+    </div>
+  </div>
+</div>
+<a class="card-composer">Add a card...</a>

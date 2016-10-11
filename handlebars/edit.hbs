@@ -1,0 +1,296 @@
+<div class="edit-card">
+  <a class="icon_close edit-close" id="close_edit_view"></a>
+  <div class="edit-header">
+    <span class="icon_document_alt"></span>
+    <textarea>{{title}}</textarea>
+    <p>in list <a class="pop-link">{{list_title}}</a></p>
+    <div class="pop-over" style="right: 305px;">
+      <div class="pop-over-header">
+        <h3>Move</h3>
+        <a class="icon_close edit-close"></a>
+      </div>
+      <div class="pop-over-content">
+        <form action="/card/move/{{id}}" mothod="post">
+          <div class="button-select-threequarters">
+            <span class="title">List</span>
+            <span class="content">{{list_title}}</span>
+            <select name="list_id">
+              {{#each_list_title list_title}}
+              {{/each_list_title}}
+            </select>
+          </div>
+          <div class="button-select-quarter">
+            <span class="title">Position</span>
+            <span class="content">{{card_position id}}</span>
+            <select name="card_position">
+              {{#each_card_position list_id id}}
+              {{/each_card_position}}
+            </select>
+          </div>
+          <div class="control">
+            <input type="submit" value="Move" />
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="edit-main">
+    {{#if due_date}}
+    <div class="edit edit-due">
+      <h3>Due Date</h3>
+      <a class="pop-link">{{formatDate due_date due_time}}</a>
+    </div>
+    {{/if}}
+    <div div class="pop-over" style="right: 380px; top: 155px">
+      <div class="pop-over-header">
+        <h3>Due Date</h3>
+        <a class="icon_close edit-close"></a>
+      </div>
+      <div class="pop-over-content">
+        <form action="/card/duedate/{{id}}" method="post">
+          <label>Date
+            {{#if due_date}}
+            <input type="text" name="due_date" value="{{due_date}}"/>
+            {{else}}
+            <input type="text" name="due_date" value="{{tomorrow}}"/>
+            {{/if}}
+          </label>
+          <label>Time
+            {{#if due_time}}
+            <input type="text" name="due_time" id="due_time" value="{{due_time}}"/>
+            {{else}}
+            <input type="text" name="due_time" id="due_time" value="12:00 PM"/>
+            {{/if}}
+          </label>
+          <div class="control">
+            <input type="submit" value="Save" />
+            <button class="remove">Remove</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    {{#unless description}}
+    <div class="first-edit">
+      <p>
+        <span class="icon_pencil-edit"></span>
+        <a>Edit the description...</a>
+      </p>
+    </div>
+    {{else}}
+    <div class="edit">
+      <h3>Description
+        <a class="edit_description_link">Edit</a>
+      </h3>
+      <div class="description">
+        <p>{{description}}</p>
+      </div>
+    </div>
+    {{/unless}}
+    <div class="edit-description">
+      <textarea>{{description}}</textarea>
+      <div class="control">
+        <input type="submit" value="Save" />
+        <a class="icon_close close_edit_description"></a>
+      </div>
+    </div>
+
+    <div class="module">
+      <div class="module-header">
+        <span class="icon_comment_alt"></span>
+        <h3>Add Comment</h3>
+      </div>
+      <div class="comment-new">
+        <img src="http://placehold.it/30/0079bf" />
+        <textarea placeholder="Write a comment..."></textarea>
+        <div class="control-inactive">
+          <input type="submit" value="Send" />
+        </div>
+      </div>
+    </div>
+
+    <div class="module">
+      <div class="module-header">
+        <span class="icon_clipboard"></span>
+        <h3>Activity</h3>
+      </div>
+      <div class="activity">
+        {{#if comments}}
+        {{#each comments}}
+        <div class="comment">
+          <img src="http://placehold.it/30/0079bf" />
+          <div class="comment-content">
+            <p>{{comment}}</p>
+          </div>
+          <div class="comment-control">
+            <span>
+              <a class="comment_edit" data-id="{{id}}">Edit</a>-
+              <a class="comment_delete" data-id="{{id}}">Delete</a>
+            </span>
+          </div>
+        </div>
+        <div class="edit-comment">
+          <img src="http://placehold.it/30/0079bf" />
+          <textarea data-id="{{id}}">{{comment}}</textarea>
+          <div class="control-inactive">
+            <p class="empty_alert">You haven't typed anything!</p>
+            <input type="submit" value="Save" />
+            <a class="icon_close close_edit_comment"></a>
+          </div>
+        </div>
+        {{/each}}
+        {{/if}}
+      </div>
+    </div>
+  </div>
+  <div class="edit-sidebar">
+    <div class="module-header">
+      <h3>Add</h3>
+      <div>
+        <a class="pop-link">
+          <span class="icon_clock_alt"></span>
+          &nbsp;Due Date
+        </a>
+        <div class="pop-over">
+          <div class="pop-over-header">
+            <h3>Due Date</h3>
+            <a class="icon_close edit-close"></a>
+          </div>
+          <div class="pop-over-content">
+            <form action="/card/duedate/{{id}}" method="post">
+              <label>Date
+                {{#if due_date}}
+                <input type="text" name="due_date" value="{{due_date}}"/>
+                {{else}}
+                <input type="text" name="due_date" value="{{tomorrow}}"/>
+                {{/if}}
+              </label>
+              <label>Time
+                {{#if due_time}}
+                <input type="text" name="due_time" id="due_time" value="{{due_time}}"/>
+                {{else}}
+                <input type="text" name="due_time" id="due_time" value="12:00 PM"/>
+                {{/if}}
+              </label>
+              <div class="control">
+                <input type="submit" value="Save" />
+                <button class="remove">Remove</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="module-header">
+      <h3>Action</h3>
+      <div>
+        <a class="pop-link">
+          <span class="arrow_right"></span>
+          &nbsp;Move
+        </a>
+        <div class="pop-over">
+          <div class="pop-over-header">
+            <h3>Move</h3>
+            <a class="icon_close edit-close"></a>
+          </div>
+          <div class="pop-over-content">
+            <form action="/card/move/{{id}}" method="post">
+              <div class="button-select-threequarters">
+                <span class="title">List</span>
+                <span class="content">{{list_title}}</span>
+                <select name="list_id">
+                  {{#each_list_title list_title}}
+                  {{/each_list_title}}
+                </select>
+              </div>
+              <div class="button-select-quarter">
+                <span class="title">Position</span>
+                <span class="content">{{card_position id}}</span>
+                <select name="card_position">
+                  {{#each_card_position list_id id}}
+                  {{/each_card_position}}
+                </select>
+              </div>
+              <div class="control">
+                <input type="submit" value="Move" />
+              </div>
+            </form>
+          </div>
+        </div>
+        </a>
+
+        <a class="pop-link">
+          <span class="icon_documents_alt"></span>
+          &nbsp;Copy
+        </a>
+        <div class="pop-over">
+          <div class="pop-over-header">
+            <h3>Copy</h3>
+            <a class="icon_close edit-close"></a>
+          </div>
+          <div class="pop-over-content">
+            <form action="/card/copy/{{id}}" method="post">
+              <label>Title
+                <textarea name="title">{{title}}</textarea>
+              </label>
+              {{#if comments}}
+              <label>Keep...</label>
+              <div class="keep_comments">
+                <input type="checkbox" id="keep_comments" name="keep_comments" value="true" checked/>
+                <label for="keep_comments">Comments
+                  <span> ({{comments.length}})</span>
+                </label>
+              </div>
+              {{/if}}
+              <label>Copy to...</label>
+              <div class="button-select-threequarters">
+                <span class="title">List</span>
+                <span class="content">{{list_title}}</span>
+                <select name="list_id">
+                  {{#each_list_title list_title}}
+                  {{/each_list_title}}
+                </select>
+              </div>
+              <div class="button-select-quarter">
+                <span class="title">Position</span>
+                <span class="content">{{card_position id}}</span>
+                <select name="card_position">
+                  {{#each_card_position list_id id}}
+                  {{/each_card_position}}
+                  <option value="{{card_addtional_position list_id}}">{{card_addtional_position list_id}}</option>
+                </select>
+              </div>
+              <div class="control">
+                <input type="submit" value="Copy" />
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <a class="pop-link">
+          <span class="icon_trash_alt"></span>
+          &nbsp;Delete
+        </a>
+        <div class="pop-over">
+          <div class="pop-over-header">
+            <h3>Delete Card?</h3>
+            <a class="icon_close edit-close"></a>
+          </div>
+          <div class="pop-over-content">
+            <form class="remove" action="/card/delete/{{id}}" method="post">
+              <p class="delete_alert">
+                Deleting a card is forever. There is no undo.
+              </p>
+              <div class="control">
+                <input type="submit" class="remove" value="Remove" />
+              </div>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

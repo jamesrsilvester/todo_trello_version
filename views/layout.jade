@@ -1,0 +1,22 @@
+include /_mixins
+
+doctype html
+html
+  head
+    title= title
+    +stylesheet_link_tag("trello")
+    +javascript_include_tag("vendor/all")
+    +javascript_include_tag("handlebars_templates")
+  body
+    main
+      block content
+      block edit
+
+    +javascript_include_tag("application")
+    +javascript_include_tag("models/list", "models/card")
+    +javascript_include_tag("collections/lists")
+    +javascript_include_tag("views/index", "views/list", "views/edit")
+    +javascript_include_tag("dragdrop")
+    script(type="text/javascript").
+      App.lists = new Lists(!{JSON.stringify(lists)});
+    +javascript_include_tag("router")
