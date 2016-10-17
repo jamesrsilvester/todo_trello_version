@@ -36,9 +36,8 @@ var App = {
       up: this.dragCard
     });
   },
-  dragList: function() {
-    var list_id = +$(this).attr("id").replace("list_", ""),
-        list = App.lists.get(list_id),
+  dragList: function(list_id) {
+    var list = App.lists.get(list_id),
         list_idx = $.makeArray($(".list"))
                     .findIndex(function(list, idx) {
                       if ($(list).attr("id") === "list_" + list_id) {
@@ -49,9 +48,8 @@ var App = {
     if (App.lists.at(list_idx) === list) { return; }
     App.lists.dragList(list, list_idx);
   },
-  dragCard: function() {
+  dragCard: function(card_id) {
     var list_id = +$(this).closest(".list").attr("id").replace("list_", ""),
-        card_id = +$(this).attr("id").replace("card_", ""),
         list = App.lists.get(list_id).toJSON(),
         card = App.lists.getCard(card_id),
         card_idx = App.findCardIdx(card);

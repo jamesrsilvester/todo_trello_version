@@ -123,9 +123,12 @@ var EditCardView = Backbone.View.extend({
 
     if (am_pm) {
       am_pm_result = am_pm.find(function(apm) {
-        return apm === "AM" || apm === "PM";
+        return apm.substr(0, 2) === "AM" || apm.substr(0, 2) === "PM";
       });
-      if (!am_pm_result) {
+
+      if (am_pm_result) {
+        am_pm_result = am_pm_result.substr(0, 2);
+      } else if (!am_pm_result) {
         apm_string = am_pm.pop().match(/[APM]/g);
         if (apm_string) {
           apm_string = apm_string.join("").match(/(A|P)+(M)/g);
@@ -143,21 +146,24 @@ var EditCardView = Backbone.View.extend({
       }
     }
     if (!am_pm_result) { am_pm_result = "PM"; }
+
     if (hr_min) {
-      hr = hr_min.join("").match(/\d+/g);
-      if (hr.length === 1) {
-        if (+hr[0].slice(0, 2) < 24) {
-          min = hr[0].slice(2, 4) || 0;
-          hr = hr[0].slice(0, 2);
+
+      if (hr_min.length === 1) {
+        if (+hr_min[0].slice(0, 2) < 24) {
+          min = hr_min[0].slice(2, 4) || 0;
+          hr = hr_min[0].slice(0, 2);
         }
       } else {
         hr = hr_min.join(" ").match(/\d*\s?\d*/)[0].split(" ")[0].slice(0, 2);
         min = hr_min.join("").match(/:\d+/);
         if (min) {
           min = +min[0].slice(1, 3);
-          if (min > 60) { min = undefined; }
+          if (min > 60) { min = undefined;console.log(min); }
         } else {
-          min = hr_min.join(" ").match(/\d*\s?\d*/)[0].split(" ")[0].slice(2);
+          hr_min = hr_min.join(" ").match(/\d*\s?\d*/)[0].split(" ");
+          min = hr_min[0].slice(2);
+          if (!min && hr_min.length > 1) { min = hr_min[1].substr(0, 2); }
         }
       }
 
@@ -167,7 +173,7 @@ var EditCardView = Backbone.View.extend({
         } else if (hr < 12) { am_pm_result = "AM"; }
         if (min < 9) {
           hr_min_result = hr + ":0" + min;
-        } else if (min < 60) {
+        } else if (min > 9 && min < 60) {
           hr_min_result = hr + ":" + min;
         } else {
           hr_min_result = hr + ":" + Math.floor(min/10);

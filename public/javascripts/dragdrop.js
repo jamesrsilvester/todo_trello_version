@@ -6,7 +6,7 @@
           down: doNothing,
           move: doNothing,
           up: doNothing,
-          axis: "y",
+          axis: "xy",
           target: "li",
           cloneStyle: {
             "background-color": "#c3c9cc"
@@ -32,7 +32,7 @@
       }
 
       $container.on("mousedown.dragDropSort", settings.target, function(e){
-        if(e.which != 1) { return; }
+        if(e.which != 1) { return; } //only left mouse click is valid
 
         var tagName = e.target.tagName.toLowerCase();
         if(tagName == "input" || tagName == "textarea" || tagName == "select") { return; }
@@ -49,12 +49,7 @@
             hasClone = 1,
 
             itemOuterHeight = $item.outerHeight(),
-            itemOuterWidth = $item.outerWidth(),
-            containerOuterHeight = $container.outerHeight(),
-
-            upSpeed = itemOuterHeight,
-            downSpeed = itemOuterHeight,
-            maxSpeed = itemOuterHeight * 3;
+            itemOuterWidth = $item.outerWidth();
 
         settings.down.call(item);
 
@@ -87,7 +82,7 @@
               clone.before(next);
             }
 
-          } else if (settings.axis === "y") {
+          } else if (settings.axis === "xy") {
             if (r_side.length && left + itemOuterWidth > r_side.offset().left + r_side.outerWidth() / 2) {
               r_side.filter(function(idx, el) { return $(el).offset().top < top; }).last().after(clone);
               $container = $container.next();
@@ -110,11 +105,9 @@
 
           if (!hasClone) {
             clone.before($item.removeAttr("style")).remove();
-            settings.up.call(item);
+            settings.up.call(item, +$(item).attr("id").match(/\d+/));
           }
-
         });
-
         return false;
       });
     });
