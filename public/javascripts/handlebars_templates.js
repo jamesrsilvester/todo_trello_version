@@ -125,7 +125,7 @@ this["JST"]["edit"] = Handlebars.template({"1":function(container,depth0,helpers
     + alias4((helpers.card_addtional_position || (depth0 && depth0.card_addtional_position) || alias2).call(alias1,(depth0 != null ? depth0.list_id : depth0),{"name":"card_addtional_position","hash":{},"data":data}))
     + "</option></select></div><div class=\"control\"><input type=\"submit\" value=\"Copy\" /></div></form></div></div><a class=\"pop-link\"><span class=\"icon_trash_alt\"></span>&nbsp;Delete</a><div class=\"pop-over\"><div class=\"pop-over-header\"><h3>Delete Card?</h3><a class=\"icon_close edit-close\"></a></div><div class=\"pop-over-content\"><form class=\"remove\" action=\"/card/delete/"
     + alias4(((helper = (helper = helpers.id || (depth0 != null ? depth0.id : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data}) : helper)))
-    + "\" method=\"post\"><p class=\"delete_alert\">Deleting a card is forever. There is no undo.</p><div class=\"control\"><input type=\"submit\" class=\"remove\" value=\"Remove\" /></div></form></div></div></div></div></div></div>";
+    + "\" method=\"delete\"><p class=\"delete_alert\">Deleting a card is forever. There is no undo.</p><div class=\"control\"><input type=\"submit\" class=\"remove\" value=\"Remove\" /></div></form></div></div></div></div></div></div>";
 },"useData":true});
 
 this["JST"]["index"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {

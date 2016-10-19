@@ -11,45 +11,33 @@ module.exports = function(router) {
   });
 
   router.post('/card/new', function(req, res, next) {
-    var lists = Lists.newCard(req.body);
-
-    res.json(lists);
-  });
-
-  router.post('/card/save', function(req, res, next) {
-    var card = Lists.setCard(JSON.parse(req.body.data));
+    var card = Lists.newCard(req.body);
 
     res.json(card);
   });
 
+  router.post('/card/save', function(req, res, next) {
+    Lists.setCard(JSON.parse(req.body.data));
+
+    res.status(200).end();
+  });
+
   router.post('/card/copy/:card_id', function(req, res, next) {
-    var data = Lists.copyCard(req.body, +req.params.card_id);
+    var card = Lists.copyCard(req.body, +req.params.card_id);
 
-    res.json(data);
+    res.json(card);
   });
 
-  router.post('/card/move/:card_id', function(req, res, next) {
-    var data = Lists.moveCard(req.body, +req.params.card_id);
-
-    res.json(data);
-  });
-
-  router.post('/card/duedate/:card_id', function(req, res, next) {
-    var data = Lists.setCardData(req.body, +req.params.card_id);
-
-    res.json(data);
-  });
-
-  router.post('/card/delete/:card_id', function(req, res, next) {
+  router.delete('/card/delete/:card_id', function(req, res, next) {
     var lists = Lists.deleteCard(+req.params.card_id);
 
-    res.json(lists);
+    res.status(204).end();
   });
 
   router.post('/list/edit', function(req, res, next) {
-    var list = Lists.setListTitle(+req.body.id, req.body.title);
+    Lists.setListTitle(+req.body.id, req.body.title);
 
-    res.json(list);
+    res.status(200).end();
   });
 
   router.post('/list/new', function(req, res, next) {
@@ -61,6 +49,6 @@ module.exports = function(router) {
   router.post('/lists', function(req, res, next) {
     Lists.set(Lists.getLastListID(), Lists.getLastCardID(), JSON.parse(req.body.data));
 
-    res.json("lists saved");
+    res.status(200).end();
   });
 };

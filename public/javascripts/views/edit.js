@@ -33,14 +33,11 @@ var EditCardView = Backbone.View.extend({
     e.preventDefault();
     var $f = $(e.target);
     App.lists.removeCard(this.model);
+    window.history.back();
 
     $.ajax({
       url: $f.attr("action"),
-      type: $f.attr("method"),
-      success: function(json) {
-        App.lists.set(json);
-        window.history.back();
-      }
+      type: $f.attr("method")
     });
   },
   removeDueDate: function(e) {
@@ -189,30 +186,48 @@ var EditCardView = Backbone.View.extend({
   submitPopOver: function(e) {
     e.preventDefault();
     var $f = $(e.target),
-        self = this;
+        data = {}
+        self = this,
+        des_list = {};
 
-    if ($f.attr("action").match("/card/delete")) { return; }
-
-    $.ajax({
-      url: $f.attr("action"),
-      type: $f.attr("method"),
-      data: $f.serialize(),
-      success: function(json) {
-        App.lists.set(json.lists);
-        App.indexView();
-        App.renderEditCard(json.card.id);
-      }
+    $f.serializeArray().forEach(function(f) {
+      data[f.name] = f.value;
     });
+
+    if (data.list_id) { des_list = App.lists.get(+data.list_id).toJSON(); }
+
+    if ($f.attr("action").match("/card/delete")) {
+      return;
+
+    } else if ($f.attr("action").match("/card/move")) {
+      App.lists.dragCard(des_list, this.model, +data.card_position - 1);
+      App.indexView();
+      App.renderEditCard(this.model.id);
+
+    } else if ($f.attr("action").match("/card/duedate")) {
+      for (var prop in data) { this.model[prop] = data[prop]; }
+      this.save();
+
+    } else {
+      $.ajax({
+        url: $f.attr("action"),
+        type: $f.attr("method"),
+        data: $f.serialize(),
+        success: function(json) {
+          App.lists.get(json.list_id).toJSON().cards.push(json);
+          App.indexView();
+          App.renderEditCard(self.model.id);
+        }
+      });
+    }
   },
   save: function() {
-    var self = this;
+    this.render();
+
     $.ajax({
       url: "/card/save",
       type: "post",
-      data: { data: JSON.stringify(this.model) },
-      success: function(json) {
-        self.render();
-      }
+      data: { data: JSON.stringify(this.model) }
     });
   },
   editTitle: function(e) {

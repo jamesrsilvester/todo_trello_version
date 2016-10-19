@@ -39,7 +39,7 @@ var ListView = Backbone.View.extend({
       type: "post",
       data: new_card.toJSON(),
       success: function(json) {
-        App.lists.set(json);
+        App.lists.get(+json.list_id).toJSON().cards.push(json);
         App.indexView();
       }
     });
@@ -63,15 +63,14 @@ var ListView = Backbone.View.extend({
         id = $(e.target).closest(".list").attr("id").replace("list_", "");
     if (new_title === this.model.toJSON().title) { return; }
 
+    this.model.set({ title: new_title });
+
     $.ajax({
       url: "/list/edit",
       type: "post",
       data: {
         title: new_title,
         id: id
-      },
-      success: function(json) {
-        App.lists.add(json);
       }
     });
   },

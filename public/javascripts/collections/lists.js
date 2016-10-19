@@ -29,8 +29,7 @@ var Lists = Backbone.Collection.extend({
     $.ajax({
       url: "/lists",
       type: "post",
-      data: { data: JSON.stringify(this.toJSON()) },
-      success: function(json) {}
+      data: { data: JSON.stringify(this.toJSON()) }
     });
   }
 });
