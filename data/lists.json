@@ -1,9 +1,1 @@
-{
-  "last_list_id":1,
-  "last_card_id":0,
-  "data":[{
-    "title":"Stuff to try (this is a list)",
-    "id":1,
-    "card_ids":[]
-  }]
-}
+{"last_list_id":2,"last_card_id":3,"data":[{"title":"Stuff to try (this is a list)","id":1,"card_ids":[2,3]},{"title":"Tried it (another list)","id":2,"card_ids":[1]}]}
