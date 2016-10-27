@@ -32,7 +32,8 @@ var EditCardView = Backbone.View.extend({
   deleteCard: function(e) {
     e.preventDefault();
     var $f = $(e.target);
-    App.lists.removeCard(this.model);
+    App.lists.removeCardId(this.model.toJSON());
+    App.cards.remove(this.model);
     window.history.back();
 
     $.ajax({
@@ -83,7 +84,7 @@ var EditCardView = Backbone.View.extend({
     }
 
     if (!date) {
-      date = this.model.due_date;
+      date = this.model.toJSON().due_date;
       if (!date) {
         tmr_day = (today.getDate() > 9) ? today.getDate() : "0" + today.getDate();
         tmr_month = (today.getMonth() + 1 > 9) ? today.getMonth() + 1 : "0" + (today.getMonth() + 1);
@@ -95,7 +96,7 @@ var EditCardView = Backbone.View.extend({
   },
   formatTime: function(e) {
     var $input = $(e.target),
-        time = $input.val().trim().toUpperCase();
+        time = $input.val().trim();
 
     time = this.validateTime(time);
     if (!time) { time = "12:00 PM"; }
@@ -103,7 +104,7 @@ var EditCardView = Backbone.View.extend({
   },
   inputTime: function(e) {
     var $input = $(e.target),
-        time = $input.val().trim().toUpperCase();
+        time = $input.val().trim();
 
     time = this.validateTime(time);
 
@@ -115,7 +116,7 @@ var EditCardView = Backbone.View.extend({
   },
   validateTime: function(time) {
     var hr_min = time.match(/:|\d+/g),
-        am_pm = time.match(/(AM$)|(PM$)|[A-Z]+$|[APM]/ig),
+        am_pm = time.toUpperCase().match(/(AM$)|(PM$)|[A-Z]+$|[APM]/g),
         am_pm_result, hr_min_result, apm_string, hr, min;
 
     if (am_pm) {
@@ -126,7 +127,7 @@ var EditCardView = Backbone.View.extend({
       if (am_pm_result) {
         am_pm_result = am_pm_result.substr(0, 2);
       } else if (!am_pm_result) {
-        apm_string = am_pm.pop().match(/[APM]/g);
+        apm_string = am_pm[am_pm.length - 1].match(/[APM]/g);
         if (apm_string) {
           apm_string = apm_string.join("").match(/(A|P)+(M)/g);
           if (apm_string) {
@@ -167,7 +168,11 @@ var EditCardView = Backbone.View.extend({
       if (!!hr && +hr < 24 && min >= 0) {
         if (hr > 12) {
           hr = hr - 12;
-        } else if (hr < 12) { am_pm_result = "AM"; }
+          am_pm_result = "PM";
+        } else if (hr < 12 && !am_pm_result) {
+          am_pm_result = "AM";
+        }
+
         if (min < 9) {
           hr_min_result = hr + ":0" + min;
         } else if (min > 9 && min < 60) {
@@ -188,7 +193,8 @@ var EditCardView = Backbone.View.extend({
     var $f = $(e.target),
         data = {}
         self = this,
-        des_list = {};
+        des_list = {},
+        copy_card = this.model.clone();
 
     $f.serializeArray().forEach(function(f) {
       data[f.name] = f.value;
@@ -200,23 +206,30 @@ var EditCardView = Backbone.View.extend({
       return;
 
     } else if ($f.attr("action").match("/card/move")) {
-      App.lists.dragCard(des_list, this.model, +data.card_position - 1);
+      App.lists.dragCard(des_list, this.model.toJSON(), +data.card_position - 1);
       App.indexView();
-      App.renderEditCard(this.model.id);
+      App.renderEditCard(this.model.toJSON().id);
 
     } else if ($f.attr("action").match("/card/duedate")) {
-      for (var prop in data) { this.model[prop] = data[prop]; }
+      this.model.set({ due_date: data.due_date, due_time: data.due_time });
       this.save();
 
-    } else {
+    } else  if ($f.attr("action").match("/card/copy")) {
+      copy_card.unset("id")
+               .set({ title: data.title });
+
+      if (!data.keep_comments) { copy_card.unset("comments"); }
+
       $.ajax({
-        url: $f.attr("action"),
+        url: "/card/new",
         type: $f.attr("method"),
-        data: $f.serialize(),
+        data: copy_card.toJSON(),
         success: function(json) {
-          App.lists.get(json.list_id).toJSON().cards.push(json);
+          App.cards.add(json);
+          App.lists.get(json.list_id).toJSON().card_ids.push(json.id);
+          App.lists.dragCard(des_list, json, +data.card_position - 1);
           App.indexView();
-          App.renderEditCard(self.model.id);
+          App.renderEditCard(self.model.toJSON().id);
         }
       });
     }
@@ -227,7 +240,7 @@ var EditCardView = Backbone.View.extend({
     $.ajax({
       url: "/card/save",
       type: "post",
-      data: { data: JSON.stringify(this.model) }
+      data: { data: JSON.stringify(this.model.toJSON()) }
     });
   },
   editTitle: function(e) {
@@ -235,34 +248,40 @@ var EditCardView = Backbone.View.extend({
     var title = $(e.target).val();
 
     if (!title) { return; }
-    this.model.title = title;
+    this.model.set({ title: title });
     this.save();
   },
   editDes: function(e) {
     e.preventDefault();
     var description = $(e.target).parent().prev("textarea").val();
 
-    this.model.description = description;
+    this.model.set({ description: description });
     this.save();
   },
   editComment: function(e) {
     e.preventDefault();
     var $textarea = $(e.target).parent().prev("textarea"),
         comment = $textarea.val(),
+        comments = this.model.toJSON().comments,
         id = +$textarea.attr("data-id"),
         edit_comment = {"comment": comment, "id": id};
 
+    comments.splice(id - 1, 1, edit_comment);
+
     if (!comment) { return; }
-    this.model.comments.splice(id - 1, 1, edit_comment);
+    this.model.set({ comments: comments });
     this.save();
   },
   newComment: function(e) {
     e.preventDefault();
     var comment = $(e.target).parent().prev("textarea").val(),
-        current_last_id = this.model.comments.length;
+        comments = this.model.toJSON().comments,
+        current_last_id = this.model.toJSON().comments.length;
+
+    comments.push({"comment": comment, "id": current_last_id + 1});
 
     if (!comment) { return; }
-    this.model.comments.push({"comment": comment, "id": current_last_id + 1});
+    this.model.set({ comments: comments });
     this.save();
   },
   popEditComment: function(e) {
@@ -280,8 +299,11 @@ var EditCardView = Backbone.View.extend({
   },
   deleteComment: function(e) {
     e.preventDefault();
-    var id = +$(e.target).attr("data-id");
-    this.model.comments.splice(id - 1, 1);
+    var id = +$(e.target).attr("data-id"),
+        comments = this.model.toJSON().comments;
+
+    comments.splice(id - 1, 1);
+    this.model.set({ comments: comments });
     this.save();
   },
   commentDetect: function(e) {
@@ -371,24 +393,24 @@ var EditCardView = Backbone.View.extend({
         list_id = +$selected.attr("list-id"),
         self = this,
         action = $selected.parents("form").find(".control input").val().toLowerCase(),
-        cards, cards_last_position, new_card_position, $position;
+        card_ids, cards_last_position, new_card_position, $position;
 
     $selected.parent().prev("span").html(option);
 
     if (list_id) {
-      cards = App.lists.get(list_id).toJSON().cards,
-      cards_last_position = cards.length + 1;
+      card_ids = App.lists.get(list_id).toJSON().card_ids,
+      cards_last_position = card_ids.length + 1;
 
-      if (cards.indexOf(this.model) === -1) {
-        for (var i = 1; i <= cards.length; i++) {
+      if (card_ids.indexOf(this.model.toJSON().id) === -1) {
+        for (var i = 1; i <= card_ids.length; i++) {
           options = options + "<option value='" + i + "'>" + i + "</option>";
         }
         new_card_position = cards_last_position;
         options = options + "<option value='" + new_card_position + "' selected>" + new_card_position + "</option>";
       } else {
-        cards.forEach(function(card, idx) {
+        card_ids.forEach(function(id, idx) {
           var position = idx + 1;
-          if (card.id === self.model.id) {
+          if (id === self.model.toJSON().id) {
             new_card_position = position;
             options = options + "<option value='" + position + "' selected>" + position + " (current)" + "</option>";
           } else {
@@ -411,7 +433,7 @@ var EditCardView = Backbone.View.extend({
     window.history.back();
   },
   render: function() {
-    this.$el.html(this.template(this.model));
+    this.$el.html(this.template(this.model.toJSON()));
     App.$el.append(this.$el);
   },
   initialize: function() {

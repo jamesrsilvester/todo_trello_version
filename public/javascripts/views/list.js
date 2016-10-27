@@ -20,6 +20,7 @@ var ListView = Backbone.View.extend({
     e.preventDefault();
     var $textarea = $(e.target).parent().prev().find("textarea"),
         card_title = $textarea.val(),
+        self = this,
         new_card;
 
     if (!card_title) {
@@ -39,7 +40,8 @@ var ListView = Backbone.View.extend({
       type: "post",
       data: new_card.toJSON(),
       success: function(json) {
-        App.lists.get(+json.list_id).toJSON().cards.push(json);
+        App.cards.add(json);
+        self.model.toJSON().card_ids.push(json.id);
         App.indexView();
       }
     });

@@ -1,15 +1,3 @@
 extends layout
 
 block content
-  #board
-    div.lists
-      for list in lists
-        div.list(id="list_" + "#{list.id}")
-          div.list-header
-            textarea #{list.title}
-          div.list-cards
-            for card in list.cards
-              div.list-card(id="card_" + "#{card.id}" dragable="true")
-                div.list-card-detail
-                  a.list-card-title(href="/card/edit/" + list.id + "/" + card.id) #{card.title}
-          a.card-composer Add a card...

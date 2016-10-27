@@ -1,12 +1,13 @@
 var path = require("path"),
     _ = require("underscore"),
-    Lists = require(path.resolve(path.dirname(__dirname), "routes/list_module"));
+    Lists = require(path.resolve(path.dirname(__dirname), "routes/list_module")),
+    Cards = require(path.resolve(path.dirname(__dirname), "routes/card_module"));
 
 module.exports = function(router) {
   router.get('/card/edit/:card_id', function(req, res, next) {
     res.render("edit", {
       lists: Lists.get(),
-      card: Lists.getCard(Lists.get(), +req.params.card_id)
+      cards: Cards.get()
     });
   });
 
@@ -17,7 +18,7 @@ module.exports = function(router) {
   });
 
   router.post('/card/save', function(req, res, next) {
-    Lists.setCard(JSON.parse(req.body.data));
+    Cards.update(JSON.parse(req.body.data));
 
     res.status(200).end();
   });
@@ -46,7 +47,7 @@ module.exports = function(router) {
     res.json(list);
   });
 
-  router.post('/lists', function(req, res, next) {
+  router.post('/lists/save', function(req, res, next) {
     Lists.set(Lists.getLastListID(), Lists.getLastCardID(), JSON.parse(req.body.data));
 
     res.status(200).end();

@@ -10,6 +10,16 @@ var nib = require("nib");
 var routes = require('./routes/all');
 var app = express();
 
+// for Jasmine test
+// var exports = module.exports = {};
+// var server = app.listen(3000, function() {
+//   console.log("port 3000");
+// });
+
+// exports.closeServer = function() {
+//   server.close();
+// };
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');

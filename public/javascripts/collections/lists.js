@@ -1,33 +1,26 @@
 var Lists = Backbone.Collection.extend({
   model: List,
-  getAllCards: function() {
-    var cards = this.toJSON().map(function(list) { return list.cards; });
-    return [].concat.apply([], cards);
-  },
-  getCard: function(card_id) {
-    return this.getAllCards().find(function(card) { return card.id === card_id; });
-  },
   dragList: function(list, list_idx) {
     this.remove(list);
     this.add(list, { at: list_idx });
     this.save();
   },
   dragCard: function(list, card, card_idx) {
-    this.removeCard(card);
+    this.removeCardId(card);
     card.list_id = list.id;
     card.list_title = list.title;
-    list.cards.splice(card_idx, 0 , card);
+    list.card_ids.splice(card_idx, 0 , card.id);
     this.save();
   },
-  removeCard: function(card) {
+  removeCardId: function(card) {
     var list = this.get(card.list_id),
-        card_idx = list.toJSON().cards.indexOf(card);
+        card_idx = list.toJSON().card_ids.indexOf(card.id);
 
-    if (card_idx > -1) { list.toJSON().cards.splice(card_idx, 1); }
+    if (card_idx > -1) { list.toJSON().card_ids.splice(card_idx, 1); }
   },
   save: function() {
     $.ajax({
-      url: "/lists",
+      url: "/lists/save",
       type: "post",
       data: { data: JSON.stringify(this.toJSON()) }
     });

@@ -3,10 +3,10 @@
 </div>
 <div class="list-cards">
   <div class="list-card" dragable="false"></div>
-  {{#each cards}}
-  <div class="list-card" id="card_{{id}}" dragable="true">
+  {{#each card_ids}}
+  <div class="list-card" id="card_{{this}}" dragable="true">
     <div class="list-card-detail">
-      <a class="list-card-title" href="/card/edit/{{id}}">{{title}}</a>
+      <a class="list-card-title" href="/card/edit/{{this}}">{{card_title this}}</a>
     </div>
   </div>
   {{/each}}

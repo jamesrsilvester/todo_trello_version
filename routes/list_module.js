@@ -1,23 +1,33 @@
 var fs = require("fs"),
     path = require("path"),
     _ = require("underscore"),
-    file_path = path.resolve(path.dirname(__dirname), "data/lists.json");
+    file_path = path.resolve(path.dirname(__dirname), "data/lists.json"),
+    Cards = require(path.resolve(path.dirname(__dirname), "routes/card_module"));
 
 var Lists = {
+  setListTitle: function(id, title) {
+    var lists = this.get(),
+        list = _.findWhere(lists, { id: id });
+
+    list.title = title;
+    Cards.setListTitle(list);
+    this.set(this.getLastListID(), this.getLastCardID(), lists);
+  },
   deleteCard: function(card_id) {
     var lists = this.get(),
-        card = this.getCard(this.get(), card_id),
+        card = Cards.getCard(card_id),
         list = _.findWhere(lists, { id: card.list_id }),
-        card_idx = list.cards.indexOf(card);
+        card_idx = list.card_ids.indexOf(card);
 
-    list.cards.splice(card_idx, 1);
+    list.card_ids.splice(card_idx, 1);
+    Cards.delete(card_id);
     this.set(this.getLastListID(), this.getLastCardID(), lists);
   },
   copyCard: function(dest, card_id) {
     var lists = this.get(),
-        card = this.getCard(this.get(), card_id),
+        card = Cards.getCard(card_id),
         cards = _.findWhere(lists, { id: card.list_id }).cards,
-        card_idx = cards.indexOf(card),
+        card_idx = cards.indexOf(card.id),
         dest_list = _.findWhere(lists, { id: +dest.list_id }),
         current_last_id = this.getLastCardID() + 1;
 
@@ -25,28 +35,13 @@ var Lists = {
     card.title = dest.title;
     card.id = current_last_id;
 
-    dest_list.cards.splice(+dest.card_position - 1, 0, card);
+    dest_list.card_ids.splice(+dest.card_position - 1, 0, card.id);
     card.list_id = +dest.list_id;
     card.list_title = dest_list.title;
 
+    Cards.new(card);
     this.set(this.getLastListID(), current_last_id, lists);
     return card;
-  },
-  getCard: function(lists, card_id) {
-    var all_cards = lists.map(function(list) { return list.cards; });
-    all_cards = [].concat.apply([], all_cards);
-
-    return _.findWhere(all_cards, {id: card_id});
-  },
-  setCard: function(input_card) {
-    var lists = this.get(),
-        card = this.getCard(lists, input_card.id);
-
-    for (var prop in input_card) {
-      card[prop] = input_card[prop];
-    }
-
-    this.set(this.getLastListID(), this.getLastCardID(), lists);
   },
   newCard: function(card) {
     var lists = this.get(),
@@ -56,8 +51,9 @@ var Lists = {
     card.id = current_last_id;
     card.list_id = +card.list_id;
     card.comments = [];
-    list.cards.push(card);
+    list.card_ids.push(card.id);
 
+    Cards.new(card);
     this.set(this.getLastListID(), current_last_id, lists);
     return card;
   },
@@ -66,17 +62,10 @@ var Lists = {
         current_last_id = this.getLastListID() + 1;
 
     list.id = current_last_id;
-    list.cards = [];
+    list.card_ids = [];
     lists.push(list);
     this.set(current_last_id, this.getLastCardID(), lists);
     return list;
-  },
-  setListTitle: function(id, title) {
-    var lists = this.get(),
-        list = _.findWhere(lists, { id: id });
-
-    list.title = title;
-    this.set(this.getLastListID(), this.getLastCardID(), lists);
   },
   get: function() {
     return JSON.parse(fs.readFileSync(file_path), "utf8").data;

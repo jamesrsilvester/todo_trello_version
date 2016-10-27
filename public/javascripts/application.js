@@ -15,7 +15,7 @@ var App = {
     });
   },
   renderEditCard: function(card_id) {
-    var card = this.lists.getCard(+card_id);
+    var card = this.cards.get(+card_id);
 
     new EditCardView({
       model: card
@@ -51,10 +51,10 @@ var App = {
   dragCard: function(card_id) {
     var list_id = +$(this).closest(".list").attr("id").replace("list_", ""),
         list = App.lists.get(list_id).toJSON(),
-        card = App.lists.getCard(card_id),
+        card = App.cards.get(card_id).toJSON(),
         card_idx = App.findCardIdx(card);
 
-    if (list_id === card.list_id && list.cards.indexOf(card) === card_idx) { return; }
+    if (list_id === card.list_id && list.card_ids.indexOf(card.id) === card_idx) { return; }
     App.lists.dragCard(list, card, card_idx);
   },
   findCardIdx: function(input_card) {
@@ -96,27 +96,31 @@ Handlebars.registerHelper("tomorrow", function(id) {
   return (month + "/" + date + "/" + year);
 });
 
+Handlebars.registerHelper("card_title", function(id) {
+  return App.cards.get(+id).toJSON().title;
+});
+
 Handlebars.registerHelper("card_position", function(id) {
-  var card = App.lists.getCard(id),
+  var card = App.cards.get(+id).toJSON(),
       card_idx = App.findCardIdx(card);
 
   return (card_idx + 1);
 });
 
 Handlebars.registerHelper("card_addtional_position", function(list_id) {
-  var cards = App.lists.get(list_id).toJSON().cards;
+  var card_ids = App.lists.get(+list_id).toJSON().card_ids;
 
-  return (cards.length + 1);
+  return (card_ids.length + 1);
 });
 
 Handlebars.registerHelper("each_card_position", function(list_id, card_id){
-  var cards = App.lists.get(list_id).toJSON().cards,
-      card = App.lists.getCard(card_id),
+  var card_ids = App.lists.get(+list_id).toJSON().card_ids,
+      card = App.cards.get(+card_id).toJSON(),
       card_idx = App.findCardIdx(card),
-      new_card_position = cards.length + 1,
+      new_card_position = card_ids.length + 1,
       options = "";
 
-  for (var i = 1; i <= cards.length; i++) {
+  for (var i = 1; i <= card_ids.length; i++) {
     if (i === card_idx + 1) {
       options = options + "<option value='" + i + "' selected>" + i + " (current)" + "</option>";
     } else {
